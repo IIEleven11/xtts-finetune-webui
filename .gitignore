@@ -166,3 +166,4 @@ finetune_models
 /datasets/metadata_eval.csv
 /datasets/metadata_train.csv
 /referencewavchina.wav
+/.history
