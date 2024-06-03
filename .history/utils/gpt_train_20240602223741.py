@@ -39,7 +39,7 @@ def train_gpt(
 
     # Training Parameters
     OPTIMIZER_WD_ONLY_ON_WEIGHTS = True  # for multi-gpu training please make it False
-    START_WITH_EVAL = True  # if True it will start with evaluation
+    START_WITH_EVAL = False  # if True it will start with evaluation
     BATCH_SIZE = batch_size  # set here the batch size
     GRAD_ACUMM_STEPS = grad_acumm  # set here the grad accumulation steps
 
@@ -50,7 +50,7 @@ def train_gpt(
         path=os.path.dirname(train_csv),
         meta_file_train=train_csv,
         meta_file_val=eval_csv,
-        language="en",
+        language=language,
     )
 
     # Add here the configs of the datasets
@@ -140,15 +140,6 @@ def train_gpt(
     TOKENIZER_FILE = NEW_TOKENIZER_FILE  # vocab.json file
     XTTS_CONFIG_FILE = NEW_XTTS_CONFIG_FILE  # config.json file
     XTTS_SPEAKER_FILE = NEW_XTTS_SPEAKER_FILE  # speakers_xtts.pth file
-    NEW_DVAE_CHECKPOINT = os.path.join(READY_MODEL_PATH, "dvae.pth")
-    NEW_MEL_NORM_FILE = os.path.join(READY_MODEL_PATH, "mel_stats.pth")
-
-    shutil.copy(DVAE_CHECKPOINT, NEW_DVAE_CHECKPOINT)
-    shutil.copy(MEL_NORM_FILE, NEW_MEL_NORM_FILE)
-
-    # Use from ready folder
-    DVAE_CHECKPOINT = NEW_DVAE_CHECKPOINT
-    MEL_NORM_FILE = NEW_MEL_NORM_FILE
 
     if custom_model != "":
         if os.path.exists(custom_model) and custom_model.endswith(".pth"):
@@ -161,12 +152,6 @@ def train_gpt(
     if language == "ja":
         num_workers = 0
 
-    # Training sentences generations
-    SPEAKER_REFERENCE = [
-        "/xtts-finetune-webui/referencewavchina.wav"  # speaker reference to be used in training test sentences
-    ]
-    LANGUAGE = config_dataset.language
-
     # init args and config
     model_args = GPTArgs(
         max_conditioning_length=132300,  # 6 secs
@@ -175,7 +160,7 @@ def train_gpt(
         max_wav_length=max_audio_length,  # ~11.6 seconds
         max_text_length=200,
         mel_norm_file=MEL_NORM_FILE,
-        dvae_checkpoint=DVAE_CHECKPOINT,  # Use the hardcoded persistent dvae.pth
+        dvae_checkpoint=DVAE_CHECKPOINT,
         xtts_checkpoint=XTTS_CHECKPOINT,  # checkpoint path of the model that you want to fine-tune
         tokenizer_file=TOKENIZER_FILE,
         gpt_num_audio_tokens=1026,
@@ -226,18 +211,7 @@ def train_gpt(
             "eta_min": 1e-7,
             "last_epoch": -1,
         },  # changed from the insane multistep that was in default
-        test_sentences=[
-            {
-                "text": "It took me quite a long time to develop a voice, and now that I have it I'm not going to be silent.",
-                "speaker_wav": SPEAKER_REFERENCE,
-                "language": LANGUAGE,
-            },
-            {
-                "text": "This cake is great. It's so delicious and moist.",
-                "speaker_wav": SPEAKER_REFERENCE,
-                "language": LANGUAGE,
-            },
-        ],
+        test_sentences=[],
     )
 
     # init the model from config

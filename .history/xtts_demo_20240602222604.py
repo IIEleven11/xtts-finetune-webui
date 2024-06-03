@@ -298,7 +298,7 @@ if __name__ == "__main__":
             num_epochs =  gr.Slider(
                 label="Number of epochs:",
                 minimum=1,
-                maximum=2000,
+                maximum=100,
                 step=1,
                 value=args.num_epochs,
             )
@@ -675,7 +675,7 @@ if __name__ == "__main__":
             )
 
     demo.launch(
-        share=True,
+        share=False,
         debug=False,
         server_port=args.port,
         # inweb=True,
