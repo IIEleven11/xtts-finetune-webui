@@ -308,7 +308,7 @@ if __name__ == "__main__":
             num_epochs =  gr.Slider(
                 label="Number of epochs:",
                 minimum=1,
-                maximum=100,
+                maximum=1000,
                 step=1,
                 value=args.num_epochs,
             )
